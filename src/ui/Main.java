@@ -5,25 +5,28 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import model.PhysInput;
 
+import static java.sql.Types.NULL;
 
 public class Main extends Application implements EventHandler<ActionEvent> {
 
     // Initialize storage as an "empty", static array
-    String[] storage = {"NULL", "NULL", "NULL"};
+    private String[] storage = {"NULL", "NULL", "NULL"};
+    public PhysInput physData;
     // Display user's input or current result of evaluation
     private Label textScreen = new Label("0");
+    public Label message = new Label("Receiving input...");
     // switch buttons
     Button buttonBasic = new Button("Basic Calculator");
     Button buttonPhys = new Button("Physics Calculator");
@@ -49,6 +52,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
     private Button buttonPower = new Button("^");
     private Button backspace = new Button("←");
     private Button off = new Button("OFF");
+    // Calculate button
+    private Button buttonCalculate = new Button("Calculate");
 
     private Scene basicScene, physScene;
 
@@ -61,7 +66,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         // Layout of basicScene
         BorderPane basicPane = new BorderPane();
         basicPane.setTop(getBasicTop());
-        basicPane.setCenter(getBasicBottom());
+        basicPane.setCenter(getBasicCenter());
         basicPane.setLeft(getBasicSide());
         basicScene = new Scene(basicPane, 390, 250);
 
@@ -71,13 +76,14 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         // Layout of physScene
         BorderPane physPane = new BorderPane();
         physPane.setLeft(getPhysSide());
-        physScene = new Scene(physPane, 400, 400);
+        physPane.setCenter(getPhysCentre());
+        physScene = new Scene(physPane, 600, 400);
 
 
         // Button to physScene
         buttonPhys.setOnAction(e -> primaryStage.setScene(physScene));
 
-        primaryStage.setScene(basicScene);
+        primaryStage.setScene(physScene); //!!! temporary set to physScene for easy testing
         primaryStage.setTitle("Physics Calculator");
         primaryStage.setResizable(false);
         primaryStage.show();
@@ -101,35 +107,35 @@ public class Main extends Application implements EventHandler<ActionEvent> {
      * Sets up the buttons and their functionalities
      * @return GridPane with buttons
      */
-    private GridPane getBasicBottom() {
-        GridPane bottom = new GridPane();
-        bottom.setHgap(20);
-        bottom.setVgap(20);
-        bottom.setPadding(new Insets(20));
+    private GridPane getBasicCenter() {
+        GridPane center = new GridPane();
+        center.setHgap(20);
+        center.setVgap(20);
+        center.setPadding(new Insets(20));
 
-        bottom.add(button7, 0, 0);
-        bottom.add(button8, 1, 0);
-        bottom.add(button9, 2, 0);
-        bottom.add(buttonDivide, 3, 0);
-        bottom.add(off, 4, 0);
+        center.add(button7, 0, 0);
+        center.add(button8, 1, 0);
+        center.add(button9, 2, 0);
+        center.add(buttonDivide, 3, 0);
+        center.add(off, 4, 0);
 
-        bottom.add(button4, 0, 1);
-        bottom.add(button5, 1, 1);
-        bottom.add(button6, 2, 1);
-        bottom.add(buttonMultiply, 3, 1);
-        bottom.add(backspace, 4, 1);
+        center.add(button4, 0, 1);
+        center.add(button5, 1, 1);
+        center.add(button6, 2, 1);
+        center.add(buttonMultiply, 3, 1);
+        center.add(backspace, 4, 1);
 
-        bottom.add(button1, 0, 2);
-        bottom.add(button2, 1, 2);
-        bottom.add(button3, 2, 2);
-        bottom.add(buttonMinus, 3, 2);
-        bottom.add(buttonPower, 4, 2);
+        center.add(button1, 0, 2);
+        center.add(button2, 1, 2);
+        center.add(button3, 2, 2);
+        center.add(buttonMinus, 3, 2);
+        center.add(buttonPower, 4, 2);
 
-        bottom.add(button0, 0, 3);
-        bottom.add(buttonDot, 1, 3);
-        bottom.add(buttonEqual, 2, 3);
-        bottom.add(buttonAdd, 3, 3);
-        bottom.add(ac, 4, 3);
+        center.add(button0, 0, 3);
+        center.add(buttonDot, 1, 3);
+        center.add(buttonEqual, 2, 3);
+        center.add(buttonAdd, 3, 3);
+        center.add(ac, 4, 3);
 
         button0.setOnAction(this);
         button1.setOnAction(this);
@@ -152,11 +158,11 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         backspace.setOnAction(this);
         off.setOnAction(this);
 
-        return bottom;
+        return center;
     }
 
     /**
-     * Sets up scene switching buttons
+     * Sets up side og basicScene with button
      * @return VBox with buttons
      */
     private VBox getBasicSide() {
@@ -167,6 +173,10 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         return side;
     }
 
+    /**
+     * Sets up side og physScene with button
+     * @return VBox with buttons
+     */
     private VBox getPhysSide() {
         VBox side = new VBox();
         side.setAlignment(Pos.CENTER);
@@ -176,29 +186,60 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
     }
 
-    private GridPane getPhysBottom() {
+    /**
+     * Sets up the centre of physScene
+     * @return GridPane
+     */
+    private GridPane getPhysCentre() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        Text scenetitle = new Text("Welcome");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 2, 1);
+        Text instruction = new Text("Please enter your inputs \nHover over the button to see what inputs are needed");
+        instruction.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        grid.add(instruction, 0, 0, 3, 1);
 
-        Label userName = new Label("User Name:");
-        grid.add(userName, 0, 1);
+        Label u = new Label("Initial velocity (m/s): ");
+        grid.add(u, 0, 1);
+        TextField uTextField = new TextField();
+        uTextField.setPromptText("Enter NA is no data");
+        grid.add(uTextField, 1, 1);
 
-        TextField userTextField = new TextField();
-        grid.add(userTextField, 1, 1);
+        Label s = new Label("Displacement (m): ");
+        grid.add(s, 0, 2);
+        TextField sTextField = new TextField();
+        sTextField.setPromptText("Enter NA is no data");
+        grid.add(sTextField, 1, 2);
 
-        Label pw = new Label("Password:");
-        grid.add(pw, 0, 2);
+        Label a = new Label("Acceleration (m/s^2): ");
+        grid.add(a, 0, 3);
+        TextField aTextField = new TextField();
+        aTextField.setPromptText("Enter NA is no data");
+        grid.add(aTextField, 1, 3);
 
-        PasswordField pwBox = new PasswordField();
-        grid.add(pwBox, 1, 2);
+        Label t = new Label("Time taken (s): ");
+        grid.add(t, 0, 4);
+        TextField tTextField = new TextField();
+        tTextField.setPromptText("Enter NA is no data");
+        grid.add(tTextField, 1, 4);
 
+        grid.add(buttonCalculate, 1, 5);
+        grid.add(message, 1, 6);
+
+
+
+
+         buttonCalculate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (uTextField.getText().equals("") || sTextField.getText().equals("") || aTextField.getText().equals("") || tTextField.getText().equals("")) {
+                    message.setText("Invalid input");
+                }
+                else message.setText(physData.calculate());
+            }
+        });
         return grid;
     }
 
