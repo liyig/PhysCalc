@@ -6,7 +6,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -197,7 +196,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        Text instruction = new Text("Please enter your inputs \nHover over the button to see what inputs are needed");
+        Text instruction = new Text("Please enter your inputs");
         instruction.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
         grid.add(instruction, 0, 0, 3, 1);
 
@@ -228,10 +227,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         grid.add(buttonCalculate, 1, 5);
         grid.add(message, 1, 6);
 
-
-
-
-         buttonCalculate.setOnAction(new EventHandler<ActionEvent>() {
+        buttonCalculate.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 if (uTextField.getText().equals("") || sTextField.getText().equals("") || aTextField.getText().equals("") || tTextField.getText().equals("")) {
