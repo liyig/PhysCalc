@@ -23,7 +23,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
     // Initialize storage as an "empty", static array
     private String[] storage = {"NULL", "NULL", "NULL"};
-    public PhysInput physData;
+    public PhysInput physData = new PhysInput();
     // Display user's input or current result of evaluation
     private Label textScreen = new Label("0");
     public Label message = new Label("Receiving input...");
@@ -204,25 +204,25 @@ public class Main extends Application implements EventHandler<ActionEvent> {
         Label u = new Label("Initial velocity (m/s): ");
         grid.add(u, 0, 1);
         TextField uTextField = new TextField();
-        uTextField.setPromptText("Enter NA is no data");
+        uTextField.setPromptText("Enter NA if no data");
         grid.add(uTextField, 1, 1);
 
         Label s = new Label("Displacement (m): ");
         grid.add(s, 0, 2);
         TextField sTextField = new TextField();
-        sTextField.setPromptText("Enter NA is no data");
+        sTextField.setPromptText("Enter NA if no data");
         grid.add(sTextField, 1, 2);
 
         Label a = new Label("Acceleration (m/s^2): ");
         grid.add(a, 0, 3);
         TextField aTextField = new TextField();
-        aTextField.setPromptText("Enter NA is no data");
+        aTextField.setPromptText("Enter NA if no data");
         grid.add(aTextField, 1, 3);
 
         Label t = new Label("Time taken (s): ");
         grid.add(t, 0, 4);
         TextField tTextField = new TextField();
-        tTextField.setPromptText("Enter NA is no data");
+        tTextField.setPromptText("Enter NA if no data");
         grid.add(tTextField, 1, 4);
 
         grid.add(buttonCalculate, 1, 5);
@@ -237,7 +237,14 @@ public class Main extends Application implements EventHandler<ActionEvent> {
                 if (uTextField.getText().equals("") || sTextField.getText().equals("") || aTextField.getText().equals("") || tTextField.getText().equals("")) {
                     message.setText("Invalid input");
                 }
-                else message.setText(physData.calculate());
+                else {
+                    message.setText("Received");
+                    physData.input[0] = uTextField.getText();
+                    physData.input[1] = sTextField.getText();
+                    physData.input[2] = aTextField.getText();
+                    physData.input[3] = tTextField.getText();
+                    message.setText(physData.calculate());
+                }
             }
         });
         return grid;
